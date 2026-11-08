@@ -22,7 +22,8 @@ const ABOUT_EN = (o) => `
 </ul>
 <p class="muted">25 maps · up to 4 snakes · adjustable speed · web-safe ${o.colors} · sounds generated with Web Audio · HTML5 Canvas</p>
 <div class="credits">
-  <p><b>A snake game in the web browser</b></p>
+  <p><b>Snake Game</b></p>
+  <p>A snake game in the web browser</p>
   <p>Copyright (c) 2026 Ercan Ersoy</p>
   <p>This software is licensed under the MIT License.</p>
   <p>Made with the help of Claude Code Opus 5.5.</p>
@@ -98,7 +99,8 @@ const STRINGS = {
 </ul>
 <p class="muted">25 harita · en fazla 4 yılan · ayarlanabilir hız · web güvenli renkler · Web Audio ile üretilen sesler · HTML5 Canvas</p>
 <div class="credits">
-  <p><b>Web tarayıcısında bir yılan oyunu</b></p>
+  <p><b>Yılan Oyunu</b></p>
+  <p>Web tarayıcısında bir yılan oyunu</p>
   <p>Telif Hakkı (c) 2026 Ercan Ersoy</p>
   <p>Bu yazılım MIT Lisansı ile lisanslanmıştır.</p>
   <p>Claude Code Opus 5.5 yardımı ile yapılmıştır.</p>
