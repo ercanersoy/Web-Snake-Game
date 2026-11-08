@@ -14,7 +14,8 @@ const DEFAULT_SETTINGS = {
   sfx: true,
   music: true,
   volume: 0.6,
-  showGrid: true,
+  // 'auto' = tarayıcı dilinden algıla; ya da 'tr', 'en-US', 'en-GB'
+  language: 'auto',
   colors: { ...DEFAULT_COLORS },
   // Son kullanılan oyun yapılandırması
   game: {

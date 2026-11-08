@@ -73,8 +73,8 @@
 
   function refreshSetup() {
     g.map = ((g.map % MAPS.length) + MAPS.length) % MAPS.length;
-    $('map-name').textContent = `${g.map + 1} / ${MAPS.length} · ${MAPS[g.map].name}`;
-    $('map-desc').textContent = MAPS[g.map].desc;
+    $('map-name').textContent = `${g.map + 1} / ${MAPS.length} · ${mapText(g.map, 'name', I18n.lang)}`;
+    $('map-desc').textContent = mapText(g.map, 'desc', I18n.lang);
     drawMapPreview($('map-preview'), g.map, settings, g.opponent);
     setSegment('opt-difficulty', g.difficulty);
     setSegment('opt-opponent', g.opponent);
@@ -109,9 +109,9 @@
   function refreshSettings() {
     $('set-sfx').checked = settings.sfx;
     $('set-music').checked = settings.music;
-    $('set-grid').checked = settings.showGrid;
+    $('set-language').value = settings.language;
     $('set-volume').value = Math.round(settings.volume * 100);
-    $('set-volume-val').textContent = `%${Math.round(settings.volume * 100)}`;
+    $('set-volume-val').textContent = t('settings.volumeValue', { n: Math.round(settings.volume * 100) });
     document.querySelectorAll('[data-color]').forEach((input) => {
       input.value = settings.colors[input.dataset.color];
     });
@@ -126,7 +126,12 @@
 
   $('set-sfx').addEventListener('change', (e) => changeSettings(() => (settings.sfx = e.target.checked)));
   $('set-music').addEventListener('change', (e) => changeSettings(() => (settings.music = e.target.checked)));
-  $('set-grid').addEventListener('change', (e) => changeSettings(() => (settings.showGrid = e.target.checked)));
+  $('set-language').addEventListener('change', (e) =>
+    changeSettings(() => {
+      settings.language = e.target.value;
+      I18n.set(settings.language);
+    })
+  );
   $('set-volume').addEventListener('input', (e) =>
     changeSettings(() => (settings.volume = Number(e.target.value) / 100))
   );
@@ -139,7 +144,6 @@
       settings.sfx = d.sfx;
       settings.music = d.music;
       settings.volume = d.volume;
-      settings.showGrid = d.showGrid;
       settings.colors = d.colors;
     })
   );
@@ -196,25 +200,28 @@
     let reason;
     let color;
     if (r.winner === player) {
-      title = 'Kazandın! 🎉';
+      title = t('result.win');
       color = settings.colors.player;
-      reason = r.type === 'score' ? `${game.cfg.target} puana ilk sen ulaştın.` : `Bilgisayar yılanı ${DEATH_TEXT[ai.deathReason]}.`;
+      reason =
+        r.type === 'score'
+          ? t('reason.youFirst', { target: game.cfg.target })
+          : t('reason.aiDied', { death: t('death.' + ai.deathReason) });
       Sound.win();
     } else if (r.winner === null && r.type === 'score') {
-      title = 'Berabere!';
+      title = t('result.draw');
       color = settings.colors.food;
-      reason = 'İki yılan da hedef puana aynı anda ulaştı.';
+      reason = t('reason.bothTarget');
       Sound.win();
     } else if (r.winner === null && r.dead && r.dead.length === 2) {
-      title = 'Berabere!';
+      title = t('result.draw');
       color = settings.colors.food;
-      reason = player.deathReason === 'head' ? 'Yılanlar kafa kafaya çarpıştı.' : 'İki yılan da aynı anda elendi.';
+      reason = player.deathReason === 'head' ? t('reason.headOn') : t('reason.bothDied');
       Sound.lose();
     } else {
-      title = 'Kaybettin';
+      title = t('result.lose');
       color = settings.colors.ai;
-      if (r.type === 'score') reason = `Bilgisayar ${game.cfg.target} puana senden önce ulaştı.`;
-      else reason = `Yılanın ${DEATH_TEXT[player.deathReason]}.`;
+      if (r.type === 'score') reason = t('reason.aiFirst', { target: game.cfg.target });
+      else reason = t('reason.youDied', { death: t('death.' + player.deathReason) });
       Sound.lose();
     }
     $('over-title').textContent = title;
@@ -232,8 +239,8 @@
       el.querySelector('b').style.color = c;
       scores.appendChild(el);
     };
-    add('Sen', player.score, settings.colors.player);
-    if (ai) add('Bilgisayar', ai.score, settings.colors.ai);
+    add(t('hud.you'), player.score, settings.colors.player);
+    if (ai) add(t('hud.computer'), ai.score, settings.colors.ai);
     show('over');
   }
 
@@ -363,6 +370,7 @@
     requestAnimationFrame(frame);
   }
 
+  I18n.set(settings.language);
   Sound.configure(settings);
   show('main');
   requestAnimationFrame(frame);
