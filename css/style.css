@@ -436,6 +436,17 @@ input[type='range'] {
 .about ul { margin: 0; padding-left: 20px; }
 .about .muted { color: var(--muted); margin-top: 16px; font-size: 0.85rem; }
 
+.about .credits {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 2px solid var(--surface);
+  text-align: center;
+  color: var(--light-gray);
+  font-size: 0.9rem;
+}
+
+.about .credits p { margin: 0 0 4px; }
+
 kbd {
   display: inline-block;
   min-width: 1.6em;

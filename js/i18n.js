@@ -20,7 +20,13 @@ const ABOUT_EN = (o) => `
   <li><kbd>P</kbd> or <kbd>Esc</kbd>: pause / resume</li>
   <li>On a touch screen: swipe (Player 1)</li>
 </ul>
-<p class="muted">25 maps · up to 4 snakes · adjustable speed · web-safe ${o.colors} · sounds generated with Web Audio · HTML5 Canvas</p>`;
+<p class="muted">25 maps · up to 4 snakes · adjustable speed · web-safe ${o.colors} · sounds generated with Web Audio · HTML5 Canvas</p>
+<div class="credits">
+  <p><b>A snake game in the web browser</b></p>
+  <p>Copyright (c) 2026 Ercan Ersoy</p>
+  <p>This software is licensed under the MIT License.</p>
+  <p>Made with the help of Claude Code Opus 5.5.</p>
+</div>`;
 
 const STRINGS = {
   tr: {
@@ -90,7 +96,13 @@ const STRINGS = {
   <li><kbd>P</kbd> veya <kbd>Esc</kbd>: duraklat / devam et</li>
   <li>Dokunmatik ekranda: parmağını kaydır (Oyuncu 1)</li>
 </ul>
-<p class="muted">25 harita · en fazla 4 yılan · ayarlanabilir hız · web güvenli renkler · Web Audio ile üretilen sesler · HTML5 Canvas</p>`,
+<p class="muted">25 harita · en fazla 4 yılan · ayarlanabilir hız · web güvenli renkler · Web Audio ile üretilen sesler · HTML5 Canvas</p>
+<div class="credits">
+  <p><b>Web tarayıcısında bir yılan oyunu</b></p>
+  <p>Telif Hakkı (c) 2026 Ercan Ersoy</p>
+  <p>Bu yazılım MIT Lisansı ile lisanslanmıştır.</p>
+  <p>Claude Code Opus 5.5 yardımı ile yapılmıştır.</p>
+</div>`,
     'pause.title': 'Duraklatıldı',
     'pause.button': 'Duraklat (P / Esc)',
     'pause.resume': 'Devam Et',
