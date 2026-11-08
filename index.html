@@ -16,7 +16,7 @@
     <!-- Ana menü -->
     <section id="screen-main" class="screen">
       <div class="panel">
-        <h1 class="logo"><span class="logo-blue" data-i18n="logo.a"></span> <span class="logo-red" data-i18n="logo.b"></span></h1>
+        <h1 class="logo"><span data-i18n="logo.a"></span> <span data-i18n="logo.b"></span></h1>
         <p class="subtitle" data-i18n="subtitle"></p>
         <nav class="menu">
           <button class="btn primary" data-go="setup" data-i18n="menu.start"></button>
@@ -43,7 +43,26 @@
           </div>
 
           <div class="options">
-            <div class="field">
+            <div class="field-pair">
+              <div class="field">
+                <div class="field-label" data-i18n="setup.humans"></div>
+                <div class="segmented" id="opt-humans">
+                  <button data-value="1">1</button>
+                  <button data-value="2">2</button>
+                </div>
+              </div>
+              <div class="field">
+                <div class="field-label" data-i18n="setup.computers"></div>
+                <div class="segmented" id="opt-computers">
+                  <button data-value="0">0</button>
+                  <button data-value="1">1</button>
+                  <button data-value="2">2</button>
+                </div>
+              </div>
+            </div>
+            <div class="controls-hint" id="controls-hint"></div>
+
+            <div class="field" id="difficulty-field">
               <div class="field-label" data-i18n="setup.difficulty"></div>
               <div class="segmented" id="opt-difficulty">
                 <button data-value="easy" data-i18n="diff.easy"></button>
@@ -53,11 +72,8 @@
             </div>
 
             <div class="field">
-              <div class="field-label" data-i18n="setup.opponent"></div>
-              <div class="segmented" id="opt-opponent">
-                <button data-value="false" data-i18n="setup.none"></button>
-                <button data-value="true" data-i18n="setup.computer"></button>
-              </div>
+              <label class="field-label" for="opt-speed"><span data-i18n="setup.speed"></span> <b id="opt-speed-val"></b></label>
+              <input type="range" id="opt-speed" min="1" max="10" step="1">
             </div>
 
             <div class="field">
@@ -101,12 +117,19 @@
 
           <div class="field-label section-title" data-i18n="settings.colors"></div>
           <div class="colors">
-            <label class="color"><input type="color" data-color="player"><span data-i18n="color.player"></span></label>
-            <label class="color"><input type="color" data-color="ai"><span data-i18n="color.ai"></span></label>
-            <label class="color"><input type="color" data-color="food"><span data-i18n="color.food"></span></label>
-            <label class="color"><input type="color" data-color="wall"><span data-i18n="color.wall"></span></label>
-            <label class="color"><input type="color" data-color="background"><span data-i18n="color.background"></span></label>
+            <button class="color" data-color="p1"><span class="swatch"></span><span data-i18n="color.p1"></span></button>
+            <button class="color" data-color="p2"><span class="swatch"></span><span data-i18n="color.p2"></span></button>
+            <button class="color" data-color="c1"><span class="swatch"></span><span data-i18n="color.c1"></span></button>
+            <button class="color" data-color="c2"><span class="swatch"></span><span data-i18n="color.c2"></span></button>
+            <button class="color" data-color="food"><span class="swatch"></span><span data-i18n="color.food"></span></button>
+            <button class="color" data-color="wall"><span class="swatch"></span><span data-i18n="color.wall"></span></button>
+            <button class="color" data-color="background"><span class="swatch"></span><span data-i18n="color.background"></span></button>
           </div>
+          <div class="palette hidden" id="palette">
+            <div class="palette-title" id="palette-title"></div>
+            <div class="palette-grid" id="palette-grid"></div>
+          </div>
+          <div class="field-label note" data-i18n="settings.colorsNote"></div>
         </div>
         <div class="row-buttons">
           <button class="btn" id="reset-settings" data-i18n="settings.reset"></button>
