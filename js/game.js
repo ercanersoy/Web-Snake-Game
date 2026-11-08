@@ -9,24 +9,30 @@ const DIRS = {
 const DIR_NAMES = ['up', 'down', 'left', 'right'];
 const OPPOSITE = { up: 'down', down: 'up', left: 'right', right: 'left' };
 
-// Her zorluk seviyesinde bir adımın süresi (ms)
-const DIFFICULTY = {
-  easy: { tick: 140 },
-  normal: { tick: 100 },
-  hard: { tick: 70 },
-};
-
 const START_LENGTH = 4;
 
+// Hız 1 (yavaş) – 10 (çok hızlı); bir adımın süresi milisaniye cinsinden
+function speedToTick(speed) {
+  return Math.round(200 * Math.pow(0.86, speed - 1));
+}
+
 class Snake {
-  constructor(id, kind, spawn) {
+  /**
+   * kind: 'human' | 'ai'
+   * role: 'p' (insan oyuncu) | 'c' (bilgisayar); num: 1 | 2
+   */
+  constructor(id, kind, role, num, spawn) {
     this.id = id;
-    this.kind = kind; // 'human' | 'ai'
+    this.kind = kind;
+    this.role = role;
+    this.num = num;
+    this.colorKey = role + num; // p1, p2, c1, c2
     this.dir = spawn.dir;
     this.queue = [];
     this.score = 0;
     this.alive = true;
     this.deathReason = null;
+    this.diedAt = 0;
     const back = DIRS[OPPOSITE[spawn.dir]];
     this.body = [];
     for (let i = 0; i < START_LENGTH; i++) {
@@ -41,7 +47,7 @@ class Snake {
 
 class Game {
   /**
-   * cfg: { map, difficulty, opponent, target, foods, demo }
+   * cfg: { map, humans, computers, difficulty, speed, target, foods, demo }
    * events: { onEat(snake), onDeath(snakes) }
    */
   constructor(cfg, events = {}) {
@@ -55,8 +61,15 @@ class Game {
 
   reset() {
     const sp = this.map.spawns;
-    this.snakes = [new Snake(0, this.cfg.demo ? 'ai' : 'human', sp[0])];
-    if (this.cfg.opponent) this.snakes.push(new Snake(1, 'ai', sp[1]));
+    this.snakes = [];
+    for (let i = 0; i < this.cfg.humans; i++) {
+      const id = this.snakes.length;
+      this.snakes.push(new Snake(id, this.cfg.demo ? 'ai' : 'human', 'p', i + 1, sp[id]));
+    }
+    for (let i = 0; i < this.cfg.computers; i++) {
+      const id = this.snakes.length;
+      this.snakes.push(new Snake(id, 'ai', 'c', i + 1, sp[id]));
+    }
     this.foods = [];
     this.over = false;
     this.result = null;
@@ -65,7 +78,11 @@ class Game {
   }
 
   get tickMs() {
-    return DIFFICULTY[this.cfg.difficulty].tick;
+    return speedToTick(this.cfg.speed);
+  }
+
+  get alive() {
+    return this.snakes.filter((s) => s.alive);
   }
 
   inBounds(x, y) {
@@ -85,7 +102,7 @@ class Game {
     if (this.foods.length >= want) return;
     const taken = new Uint8Array(this.w * this.h);
     for (let i = 0; i < taken.length; i++) taken[i] = this.map.walls[i];
-    for (const s of this.snakes) for (const c of s.body) taken[c.y * this.w + c.x] = 1;
+    for (const s of this.alive) for (const c of s.body) taken[c.y * this.w + c.x] = 1;
     for (const f of this.foods) taken[f.y * this.w + f.x] = 1;
     const free = [];
     for (let i = 0; i < taken.length; i++) if (!taken[i]) free.push(i);
@@ -110,10 +127,10 @@ class Game {
   step() {
     if (this.over) return;
     this.ticks++;
+    const alive = this.alive;
 
     // 1) Yönleri belirle
-    for (const s of this.snakes) {
-      if (!s.alive) continue;
+    for (const s of alive) {
       if (s.kind === 'human') {
         if (s.queue.length) s.dir = s.queue.shift();
       } else {
@@ -122,60 +139,59 @@ class Game {
     }
 
     // 2) Yeni baş konumlarını hesapla
-    const plans = this.snakes.map((s) => {
+    const plans = new Map();
+    for (const s of alive) {
       const d = DIRS[s.dir];
       const nh = { x: s.head.x + d.x, y: s.head.y + d.y };
       const inside = this.inBounds(nh.x, nh.y);
-      const eats = inside && this.foodIndexAt(nh.x, nh.y) >= 0;
-      return { nh, inside, eats };
-    });
+      plans.set(s, { nh, inside, eats: inside && this.foodIndexAt(nh.x, nh.y) >= 0 });
+    }
 
     // 3) Doluluk: bu turda hareket edecek kuyruk hücreleri boş sayılır
     const owner = new Int8Array(this.w * this.h).fill(-1);
-    this.snakes.forEach((s, i) => {
-      const keepTail = plans[i].eats;
-      const n = s.body.length - (keepTail ? 0 : 1);
-      for (let k = 0; k < n; k++) owner[s.body[k].y * this.w + s.body[k].x] = i;
-    });
+    for (const s of alive) {
+      const n = s.body.length - (plans.get(s).eats ? 0 : 1);
+      for (let k = 0; k < n; k++) owner[s.body[k].y * this.w + s.body[k].x] = s.id;
+    }
 
     // 4) Çarpışmaları kontrol et
     const dead = [];
-    this.snakes.forEach((s, i) => {
-      const { nh, inside } = plans[i];
+    const headCount = new Map();
+    for (const s of alive) {
+      const { nh, inside } = plans.get(s);
+      if (inside) {
+        const key = nh.y * this.w + nh.x;
+        headCount.set(key, (headCount.get(key) || 0) + 1);
+      }
+    }
+    for (const s of alive) {
+      const { nh, inside } = plans.get(s);
       let reason = null;
       if (!inside) reason = 'out';
       else if (this.isWall(nh.x, nh.y)) reason = 'wall';
       else {
         const o = owner[nh.y * this.w + nh.x];
-        if (o === i) reason = 'self';
+        if (o === s.id) reason = 'self';
         else if (o >= 0) reason = 'snake';
+        else if (headCount.get(nh.y * this.w + nh.x) > 1) reason = 'head';
       }
       if (reason) {
         s.deathReason = reason;
         dead.push(s);
       }
-    });
-    if (this.snakes.length === 2) {
-      const [a, b] = plans;
-      if (a.nh.x === b.nh.x && a.nh.y === b.nh.y) {
-        for (const s of this.snakes) {
-          if (!dead.includes(s)) {
-            s.deathReason = 'head';
-            dead.push(s);
-          }
-        }
-      }
     }
 
-    if (dead.length) {
-      for (const s of dead) s.alive = false;
-      this.finishWithDeaths(dead);
-      return;
+    // 5) Elenmeyenleri hareket ettir ve yemleri ye
+    const now = performance.now();
+    for (const s of dead) {
+      s.alive = false;
+      s.diedAt = now;
     }
+    if (dead.length && this.events.onDeath) this.events.onDeath(dead);
 
-    // 5) Hareket ettir ve yemleri ye
-    this.snakes.forEach((s, i) => {
-      const { nh, eats } = plans[i];
+    for (const s of alive) {
+      if (!s.alive) continue;
+      const { nh, eats } = plans.get(s);
       s.body.unshift(nh);
       if (eats) {
         this.foods.splice(this.foodIndexAt(nh.x, nh.y), 1);
@@ -184,44 +200,51 @@ class Game {
       } else {
         s.body.pop();
       }
-    });
+    }
     this.refillFood();
-
-    // 6) Hedef puana ulaşıldı mı?
-    const reached = this.snakes.filter((s) => s.score >= this.cfg.target);
-    if (reached.length === 1) {
-      this.end({ type: 'score', winner: reached[0] });
-    } else if (reached.length > 1) {
-      this.end({ type: 'score', winner: null });
-    }
+    this.checkEnd(dead);
   }
 
-  finishWithDeaths(dead) {
-    if (this.events.onDeath) this.events.onDeath(dead);
+  // Oyunun bitip bitmediğine karar verir.
+  checkEnd(dead) {
+    const alive = this.alive;
+
+    // Hedef puana ulaşan kazanır (aynı anda birden fazlaysa berabere)
+    const reached = alive.filter((s) => s.score >= this.cfg.target);
+    if (reached.length) return this.end('target', reached);
+
+    // Tek yılanlı oyunda elenmek kaybetmektir
     if (this.snakes.length === 1) {
-      this.end({ type: 'death', winner: null, dead });
-    } else if (dead.length === 2) {
-      this.end({ type: 'death', winner: null, dead });
-    } else {
-      const winner = this.snakes.find((s) => s !== dead[0]);
-      this.end({ type: 'death', winner, dead });
+      if (!alive.length) return this.end('solo', []);
+      return;
     }
+
+    // Herkes aynı anda elendiyse berabere
+    if (!alive.length) return this.end('allOut', []);
+
+    // Ayakta kalan son yılan kazanır
+    if (alive.length === 1) return this.end('last', alive);
+
+    // Bütün insan oyuncular elendiyse kalan bilgisayarlar kazanır
+    const hadHumans = this.snakes.some((s) => s.kind === 'human');
+    if (hadHumans && !alive.some((s) => s.kind === 'human')) return this.end('humansOut', alive);
   }
 
-  end(result) {
+  end(type, winners) {
     this.over = true;
-    this.result = result;
+    this.result = { type, winners };
   }
 }
 
 // ---------------------------------------------------------------------------
-// Bilgisayar yılanının yapay zekâsı
+// Bilgisayar yılanlarının yapay zekâsı
 // ---------------------------------------------------------------------------
 
 function buildBlocked(game) {
   const blocked = new Uint8Array(game.w * game.h);
   for (let i = 0; i < blocked.length; i++) blocked[i] = game.map.walls[i];
   for (const s of game.snakes) {
+    if (!s.alive) continue;
     // Kuyruk ucu bir sonraki adımda büyük ihtimalle boşalacak
     for (let k = 0; k < s.body.length - 1; k++) blocked[s.body[k].y * game.w + s.body[k].x] = 1;
   }
@@ -287,7 +310,7 @@ function aiChooseDir(game, snake) {
   const level = game.cfg.difficulty;
   const blocked = buildBlocked(game);
   const head = snake.head;
-  const rival = game.snakes.find((s) => s !== snake && s.alive);
+  const rivals = game.snakes.filter((s) => s !== snake && s.alive);
 
   const options = [];
   for (const d of DIR_NAMES) {
@@ -295,10 +318,8 @@ function aiChooseDir(game, snake) {
     const nx = head.x + DIRS[d].x;
     const ny = head.y + DIRS[d].y;
     if (!game.inBounds(nx, ny) || blocked[ny * game.w + nx]) continue;
-    let risky = false;
-    if (rival) {
-      risky = Math.abs(rival.head.x - nx) + Math.abs(rival.head.y - ny) === 1;
-    }
+    // Başka bir yılanın başının yanına girmek kafa kafaya çarpışma riskidir
+    const risky = rivals.some((r) => Math.abs(r.head.x - nx) + Math.abs(r.head.y - ny) === 1);
     options.push({ dir: d, x: nx, y: ny, risky });
   }
   if (!options.length) return snake.dir; // Kaçış yok
@@ -331,10 +352,8 @@ function aiChooseDir(game, snake) {
 
   // Zor: yeme giden yol çıkmaz sokağa giriyorsa güvenli yönü tercih et
   if (level === 'hard' || !target) {
-    const areas = pool.map((o) => {
-      blocked[head.y * game.w + head.x] = 1;
-      return floodArea(game, blocked, o.x, o.y, len * 3);
-    });
+    blocked[head.y * game.w + head.x] = 1;
+    const areas = pool.map((o) => floodArea(game, blocked, o.x, o.y, len * 3));
     const need = len + 2;
     if (target) {
       const ti = pool.findIndex((o) => o.dir === target);
@@ -348,4 +367,4 @@ function aiChooseDir(game, snake) {
   return target;
 }
 
-if (typeof module !== 'undefined') module.exports = { Game, DIFFICULTY };
+if (typeof module !== 'undefined') module.exports = { Game, speedToTick };

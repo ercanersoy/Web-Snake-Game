@@ -4,11 +4,23 @@
 const MAP_W = 40;
 const MAP_H = 26;
 
-// Varsayılan başlangıç noktaları: [oyuncu, bilgisayar]
+// Varsayılan başlangıç noktaları (en fazla 4 yılan):
+// sol üst, sağ alt, sağ üst, sol alt
 const DEFAULT_SPAWNS = [
   { x: 6, y: 3, dir: 'right' },
   { x: 33, y: 22, dir: 'left' },
+  { x: 33, y: 3, dir: 'left' },
+  { x: 6, y: 22, dir: 'right' },
 ];
+const SPAWN_COUNT = 4;
+const SPAWN_BODY = 4; // başlangıç uzunluğu
+const SPAWN_AHEAD = 5; // önünde boş olması gereken hücre sayısı
+const SPAWN_STEP = {
+  up: [0, -1],
+  down: [0, 1],
+  left: [-1, 0],
+  right: [1, 0],
+};
 
 function makeGrid() {
   const g = [];
@@ -512,6 +524,40 @@ function mapText(index, field, lang) {
   return t.en;
 }
 
+// Bir başlangıç noktasının kapladığı hücreler (gövde + önündeki boşluk)
+function spawnCells(sp) {
+  const [dx, dy] = SPAWN_STEP[sp.dir];
+  const cells = [];
+  for (let i = -(SPAWN_BODY - 1); i <= SPAWN_AHEAD; i++) cells.push([sp.x + dx * i, sp.y + dy * i]);
+  return cells;
+}
+
+function spawnFits(walls, sp, used) {
+  for (const [x, y] of spawnCells(sp)) {
+    if (x < 0 || y < 0 || x >= MAP_W || y >= MAP_H) return false;
+    if (walls[y * MAP_W + x] || used.has(y * MAP_W + x)) return false;
+  }
+  return true;
+}
+
+// İstenen nokta uygun değilse ona en yakın uygun noktayı arar.
+function findSpawn(walls, want, used) {
+  if (spawnFits(walls, want, used)) return want;
+  const dirs = [want.dir, ...Object.keys(SPAWN_STEP).filter((d) => d !== want.dir)];
+  for (let r = 1; r < MAP_W; r++) {
+    for (let dy = -r; dy <= r; dy++) {
+      for (let dx = -r; dx <= r; dx++) {
+        if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
+        for (const dir of dirs) {
+          const sp = { x: want.x + dx, y: want.y + dy, dir };
+          if (spawnFits(walls, sp, used)) return sp;
+        }
+      }
+    }
+  }
+  return want;
+}
+
 // Haritayı oyunda kullanılacak biçime dönüştürür.
 function buildMap(index) {
   const def = MAPS[index];
@@ -520,12 +566,23 @@ function buildMap(index) {
   for (let y = 0; y < MAP_H; y++) {
     for (let x = 0; x < MAP_W; x++) walls[y * MAP_W + x] = grid[y][x];
   }
+  // Yılanlar birbirinin yolunu kesmesin diye her başlangıç alanının çevresi ayrılır.
+  const used = new Set();
+  const spawns = [];
+  for (let i = 0; i < SPAWN_COUNT; i++) {
+    const want = (def.spawns && def.spawns[i]) || DEFAULT_SPAWNS[i];
+    const sp = findSpawn(walls, want, used);
+    spawns.push(sp);
+    for (const [x, y] of spawnCells(sp)) {
+      for (let oy = -1; oy <= 1; oy++) for (let ox = -1; ox <= 1; ox++) used.add((y + oy) * MAP_W + (x + ox));
+    }
+  }
   return {
     index,
     width: MAP_W,
     height: MAP_H,
     walls,
-    spawns: def.spawns || DEFAULT_SPAWNS,
+    spawns,
   };
 }
 
