@@ -3,25 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="description" content="Web tabanlı iki boyutlu yılan oyunu">
+  <meta name="description" content="Yılan Oyunu – web tabanlı iki boyutlu yılan oyunu">
   <title>Yılan Oyunu</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <canvas id="game" aria-label="Oyun alanı"></canvas>
+  <canvas id="game"></canvas>
 
-  <button id="pause-btn" class="icon-btn hidden" title="Duraklat (P / Esc)" aria-label="Duraklat">❚❚</button>
+  <button id="pause-btn" class="icon-btn hidden" data-i18n-label="pause.button">❚❚</button>
 
   <div id="ui">
     <!-- Ana menü -->
     <section id="screen-main" class="screen">
       <div class="panel">
-        <h1 class="logo"><span class="logo-blue">YI</span><span class="logo-yellow">●</span><span class="logo-red">LAN</span></h1>
-        <p class="subtitle">İki boyutlu yılan oyunu</p>
+        <h1 class="logo"><span class="logo-blue" data-i18n="logo.a"></span> <span class="logo-red" data-i18n="logo.b"></span></h1>
+        <p class="subtitle" data-i18n="subtitle"></p>
         <nav class="menu">
-          <button class="btn primary" data-go="setup">Oyuna Başla</button>
-          <button class="btn" data-go="settings">Ayarlar</button>
-          <button class="btn" data-go="about">Hakkında</button>
+          <button class="btn primary" data-go="setup" data-i18n="menu.start"></button>
+          <button class="btn" data-go="settings" data-i18n="menu.settings"></button>
+          <button class="btn" data-go="about" data-i18n="menu.about"></button>
         </nav>
       </div>
     </section>
@@ -29,14 +29,14 @@
     <!-- Oyun yapılandırması -->
     <section id="screen-setup" class="screen hidden">
       <div class="panel wide">
-        <h2>Oyun Yapılandırması</h2>
+        <h2 data-i18n="setup.title"></h2>
         <div class="setup-grid">
           <div class="map-box">
-            <div class="field-label">Harita</div>
+            <div class="field-label" data-i18n="setup.map"></div>
             <div class="map-picker">
-              <button class="btn arrow" id="map-prev" aria-label="Önceki harita">‹</button>
+              <button class="btn arrow" id="map-prev" data-i18n-label="setup.prevMap">‹</button>
               <canvas id="map-preview" width="400" height="260"></canvas>
-              <button class="btn arrow" id="map-next" aria-label="Sonraki harita">›</button>
+              <button class="btn arrow" id="map-next" data-i18n-label="setup.nextMap">›</button>
             </div>
             <div class="map-title" id="map-name"></div>
             <div class="map-desc" id="map-desc"></div>
@@ -44,36 +44,36 @@
 
           <div class="options">
             <div class="field">
-              <div class="field-label">Zorluk seviyesi</div>
+              <div class="field-label" data-i18n="setup.difficulty"></div>
               <div class="segmented" id="opt-difficulty">
-                <button data-value="easy">Kolay</button>
-                <button data-value="normal">Orta</button>
-                <button data-value="hard">Zor</button>
+                <button data-value="easy" data-i18n="diff.easy"></button>
+                <button data-value="normal" data-i18n="diff.normal"></button>
+                <button data-value="hard" data-i18n="diff.hard"></button>
               </div>
             </div>
 
             <div class="field">
-              <div class="field-label">Rakip yılan</div>
+              <div class="field-label" data-i18n="setup.opponent"></div>
               <div class="segmented" id="opt-opponent">
-                <button data-value="false">Yok (tek yılan)</button>
-                <button data-value="true">Bilgisayar</button>
+                <button data-value="false" data-i18n="setup.none"></button>
+                <button data-value="true" data-i18n="setup.computer"></button>
               </div>
             </div>
 
             <div class="field">
-              <label class="field-label" for="opt-target">Kazanmak için gereken puan: <b id="opt-target-val"></b></label>
+              <label class="field-label" for="opt-target"><span data-i18n="setup.target"></span> <b id="opt-target-val"></b></label>
               <input type="range" id="opt-target" min="10" max="100" step="1">
             </div>
 
             <div class="field">
-              <label class="field-label" for="opt-foods">Aynı anda yem sayısı: <b id="opt-foods-val"></b></label>
+              <label class="field-label" for="opt-foods"><span data-i18n="setup.foods"></span> <b id="opt-foods-val"></b></label>
               <input type="range" id="opt-foods" min="2" max="10" step="1">
             </div>
           </div>
         </div>
         <div class="row-buttons">
-          <button class="btn" data-go="main">Geri</button>
-          <button class="btn primary" id="start-btn">Başlat</button>
+          <button class="btn" data-go="main" data-i18n="common.back"></button>
+          <button class="btn primary" id="start-btn" data-i18n="setup.start"></button>
         </div>
       </div>
     </section>
@@ -81,28 +81,36 @@
     <!-- Ayarlar -->
     <section id="screen-settings" class="screen hidden">
       <div class="panel">
-        <h2>Ayarlar</h2>
+        <h2 data-i18n="settings.title"></h2>
         <div class="settings-list">
-          <label class="toggle"><input type="checkbox" id="set-sfx"><span>Ses efektleri</span></label>
-          <label class="toggle"><input type="checkbox" id="set-music"><span>Müzik</span></label>
           <div class="field">
-            <label class="field-label" for="set-volume">Ses düzeyi: <b id="set-volume-val"></b></label>
+            <label class="field-label" for="set-language" data-i18n="settings.language"></label>
+            <select id="set-language">
+              <option value="auto" data-i18n="lang.auto"></option>
+              <option value="tr">Türkçe (Türkiye)</option>
+              <option value="en-US">English (US)</option>
+              <option value="en-GB">English (UK)</option>
+            </select>
+          </div>
+          <label class="toggle"><input type="checkbox" id="set-sfx"><span data-i18n="settings.sfx"></span></label>
+          <label class="toggle"><input type="checkbox" id="set-music"><span data-i18n="settings.music"></span></label>
+          <div class="field">
+            <label class="field-label" for="set-volume"><span data-i18n="settings.volume"></span> <b id="set-volume-val"></b></label>
             <input type="range" id="set-volume" min="0" max="100" step="1">
           </div>
-          <label class="toggle"><input type="checkbox" id="set-grid"><span>Izgara çizgileri</span></label>
 
-          <div class="field-label section-title">Renkler</div>
+          <div class="field-label section-title" data-i18n="settings.colors"></div>
           <div class="colors">
-            <label class="color"><input type="color" data-color="player"><span>Oyuncu yılanı</span></label>
-            <label class="color"><input type="color" data-color="ai"><span>Bilgisayar yılanı</span></label>
-            <label class="color"><input type="color" data-color="food"><span>Yem</span></label>
-            <label class="color"><input type="color" data-color="wall"><span>Duvar</span></label>
-            <label class="color"><input type="color" data-color="background"><span>Arka plan</span></label>
+            <label class="color"><input type="color" data-color="player"><span data-i18n="color.player"></span></label>
+            <label class="color"><input type="color" data-color="ai"><span data-i18n="color.ai"></span></label>
+            <label class="color"><input type="color" data-color="food"><span data-i18n="color.food"></span></label>
+            <label class="color"><input type="color" data-color="wall"><span data-i18n="color.wall"></span></label>
+            <label class="color"><input type="color" data-color="background"><span data-i18n="color.background"></span></label>
           </div>
         </div>
         <div class="row-buttons">
-          <button class="btn" id="reset-settings">Varsayılana dön</button>
-          <button class="btn primary" data-go="back">Tamam</button>
+          <button class="btn" id="reset-settings" data-i18n="settings.reset"></button>
+          <button class="btn primary" data-go="back" data-i18n="common.ok"></button>
         </div>
       </div>
     </section>
@@ -110,26 +118,10 @@
     <!-- Hakkında -->
     <section id="screen-about" class="screen hidden">
       <div class="panel">
-        <h2>Hakkında</h2>
-        <div class="about">
-          <p>Klasik yılan oyununun web tabanlı, iki boyutlu bir yorumu. Mavi yılanı sen yönetirsin; istersen kırmızı bilgisayar yılanına karşı yarışırsın.</p>
-          <h3>Kurallar</h3>
-          <ul>
-            <li>Sarı yemleri ye: her yem <b>1 puan</b> kazandırır ve yılanı uzatır.</li>
-            <li>Belirlenen hedef puana (10–100) ilk ulaşan <b>kazanır</b>.</li>
-            <li>Duvara çarpan ya da harita dışına çıkan yılanın sahibi <b>kaybeder</b>.</li>
-            <li>Kendine veya diğer yılana çarpan da kaybeder. Kafa kafaya çarpışma berabere biter.</li>
-          </ul>
-          <h3>Kontroller</h3>
-          <ul>
-            <li><kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> veya <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>: yön</li>
-            <li><kbd>P</kbd> veya <kbd>Esc</kbd>: duraklat / devam et</li>
-            <li>Dokunmatik ekranda: parmağını kaydır</li>
-          </ul>
-          <p class="muted">10 harita · 3 zorluk seviyesi · Web Audio ile üretilen sesler · HTML5 Canvas</p>
-        </div>
+        <h2 data-i18n="about.title"></h2>
+        <div class="about" data-i18n-html="about.body"></div>
         <div class="row-buttons">
-          <button class="btn primary" data-go="main">Geri</button>
+          <button class="btn primary" data-go="main" data-i18n="common.back"></button>
         </div>
       </div>
     </section>
@@ -137,12 +129,12 @@
     <!-- Duraklatma -->
     <section id="screen-pause" class="screen hidden">
       <div class="panel small">
-        <h2>Duraklatıldı</h2>
+        <h2 data-i18n="pause.title"></h2>
         <nav class="menu">
-          <button class="btn primary" id="resume-btn">Devam Et</button>
-          <button class="btn" id="restart-btn">Yeniden Başla</button>
-          <button class="btn" data-go="settings">Ayarlar</button>
-          <button class="btn" id="quit-btn">Ana Menü</button>
+          <button class="btn primary" id="resume-btn" data-i18n="pause.resume"></button>
+          <button class="btn" id="restart-btn" data-i18n="pause.restart"></button>
+          <button class="btn" data-go="settings" data-i18n="menu.settings"></button>
+          <button class="btn" id="quit-btn" data-i18n="pause.mainMenu"></button>
         </nav>
       </div>
     </section>
@@ -154,14 +146,15 @@
         <p id="over-reason" class="over-reason"></p>
         <div id="over-scores" class="over-scores"></div>
         <nav class="menu">
-          <button class="btn primary" id="again-btn">Tekrar Oyna</button>
-          <button class="btn" data-go="setup">Yapılandırmayı Değiştir</button>
-          <button class="btn" id="over-menu-btn">Ana Menü</button>
+          <button class="btn primary" id="again-btn" data-i18n="over.again"></button>
+          <button class="btn" data-go="setup" data-i18n="over.change"></button>
+          <button class="btn" id="over-menu-btn" data-i18n="pause.mainMenu"></button>
         </nav>
       </div>
     </section>
   </div>
 
+  <script src="js/i18n.js"></script>
   <script src="js/maps.js"></script>
   <script src="js/settings.js"></script>
   <script src="js/audio.js"></script>

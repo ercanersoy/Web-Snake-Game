@@ -76,7 +76,7 @@ class Renderer {
   // Duvarlar ve ızgara bir kez çizilip önbelleğe alınır.
   drawStatic(game, L, settings) {
     const c = settings.colors;
-    const key = [game.map.index, L.cell, L.ox, L.oy, this.width, this.height, this.dpr, c.background, c.wall, settings.showGrid].join('|');
+    const key = [game.map.index, L.cell, L.ox, L.oy, this.width, this.height, this.dpr, c.background, c.wall].join('|');
     if (key === this.staticKey) return;
     this.staticKey = key;
 
@@ -88,24 +88,6 @@ class Renderer {
 
     ctx.fillStyle = c.background;
     ctx.fillRect(0, 0, this.width, this.height);
-
-    const lineColor = isLight(c.background) ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.045)';
-    if (settings.showGrid) {
-      ctx.strokeStyle = lineColor;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      for (let x = 1; x < MAP_W; x++) {
-        const px = L.ox + x * L.cell + 0.5;
-        ctx.moveTo(px, L.oy);
-        ctx.lineTo(px, L.oy + L.bh);
-      }
-      for (let y = 1; y < MAP_H; y++) {
-        const py = L.oy + y * L.cell + 0.5;
-        ctx.moveTo(L.ox, py);
-        ctx.lineTo(L.ox + L.bw, py);
-      }
-      ctx.stroke();
-    }
 
     // Harita sınırı (duvar değil, sadece işaret): dışına çıkan kaybeder
     ctx.save();
@@ -249,15 +231,15 @@ class Renderer {
       }
     };
 
-    drawScore(game.snakes[0], 'Sen', c.player, 'left');
-    if (game.snakes[1]) drawScore(game.snakes[1], compact ? 'Bilg.' : 'Bilgisayar', c.ai, 'right');
+    drawScore(game.snakes[0], t('hud.you'), c.player, 'left');
+    if (game.snakes[1]) drawScore(game.snakes[1], t(compact ? 'hud.computerShort' : 'hud.computer'), c.ai, 'right');
 
     if (!compact || !game.snakes[1]) {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = sub;
       ctx.font = `500 ${Math.round(size * 0.8)}px system-ui, sans-serif`;
-      const label = `${game.map.index + 1}. ${game.map.name} · ${DIFFICULTY[game.cfg.difficulty].label}`;
+      const label = `${game.map.index + 1}. ${mapText(game.map.index, 'name', I18n.lang)} · ${t('diff.' + game.cfg.difficulty)}`;
       const cx = game.snakes[1] ? this.width / 2 - rightReserve / 2 : this.width / 2;
       ctx.fillText(label, cx, L.hud / 2);
     }
@@ -275,7 +257,7 @@ class Renderer {
     ctx.font = `800 ${Math.round(size)}px system-ui, sans-serif`;
     ctx.shadowColor = 'rgba(0,0,0,0.7)';
     ctx.shadowBlur = 20;
-    ctx.fillText(n > 0 ? String(n) : 'BAŞLA!', this.width / 2, this.height / 2);
+    ctx.fillText(n > 0 ? String(n) : t('countdown.go'), this.width / 2, this.height / 2);
     ctx.restore();
   }
 

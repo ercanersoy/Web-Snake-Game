@@ -91,22 +91,16 @@ h3 {
 }
 
 .logo {
-  font-size: clamp(3rem, 12vw, 5rem);
+  font-size: clamp(2rem, 9vw, 3.4rem);
   font-weight: 900;
-  letter-spacing: 0.08em;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
   text-align: center;
   line-height: 1;
 }
 
 .logo-blue { color: var(--blue); text-shadow: 0 0 24px rgba(47, 125, 255, 0.6); }
 .logo-red { color: var(--red); text-shadow: 0 0 24px rgba(255, 46, 46, 0.6); }
-.logo-yellow {
-  color: var(--yellow);
-  font-size: 0.5em;
-  vertical-align: middle;
-  margin: 0 0.05em;
-  text-shadow: 0 0 20px rgba(255, 212, 0, 0.8);
-}
 
 .subtitle {
   text-align: center;
@@ -257,6 +251,27 @@ h3 {
 .segmented button.active {
   background: var(--blue);
   color: #fff;
+}
+
+select {
+  font: inherit;
+  font-size: 1rem;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 9px 12px;
+  cursor: pointer;
+}
+
+select:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+select option {
+  background: #16181e;
+  color: var(--text);
 }
 
 input[type='range'] {

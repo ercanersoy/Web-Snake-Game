@@ -9,18 +9,11 @@ const DIRS = {
 const DIR_NAMES = ['up', 'down', 'left', 'right'];
 const OPPOSITE = { up: 'down', down: 'up', left: 'right', right: 'left' };
 
+// Her zorluk seviyesinde bir adımın süresi (ms)
 const DIFFICULTY = {
-  easy: { label: 'Kolay', tick: 140 },
-  normal: { label: 'Orta', tick: 100 },
-  hard: { label: 'Zor', tick: 70 },
-};
-
-const DEATH_TEXT = {
-  wall: 'duvara çarptı',
-  out: 'harita dışına çıktı',
-  self: 'kendine çarptı',
-  snake: 'diğer yılana çarptı',
-  head: 'kafa kafaya çarpıştı',
+  easy: { tick: 140 },
+  normal: { tick: 100 },
+  hard: { tick: 70 },
 };
 
 const START_LENGTH = 4;
@@ -355,4 +348,4 @@ function aiChooseDir(game, snake) {
   return target;
 }
 
-if (typeof module !== 'undefined') module.exports = { Game, DIFFICULTY, DEATH_TEXT };
+if (typeof module !== 'undefined') module.exports = { Game, DIFFICULTY };
