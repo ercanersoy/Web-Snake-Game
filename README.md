@@ -1,5 +1,13 @@
 # Yılan Oyunu
 
+Web tarayıcısında bir yılan oyunu
+
+Telif Hakkı (c) 2026 Ercan Ersoy
+
+Bu yazılım MIT Lisansı ile lisanslanmıştır.
+
+Claude Code Opus 5.5 yardımı ile yapılmıştır.
+
 HTML5 Canvas ile yazılmış, web tabanlı iki boyutlu yılan oyunu. Kurulum gerektirmez: `index.html` dosyasını tarayıcıda açmanız yeterli.
 
 ## Özellikler
